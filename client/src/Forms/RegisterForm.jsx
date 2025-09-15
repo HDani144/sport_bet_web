@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-export default function RegisterForm() {
+export default function RegisterForm({ onSave, disabled, onCancel }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -14,48 +14,55 @@ export default function RegisterForm() {
       return;
     }
 
-    const user = { name, email, password };
-
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert("Registration successful");
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error("Registration error:", err);
-      alert("Something went wrong. Please try again.");
-    }
+    onSave({ name, email, password });
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <label>
         Name:
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+        <input
+          type="text"
+          value={name}
+          disabled={disabled}
+          onChange={(e) => setName(e.target.value)}
+        />
       </label>
+
       <label>
         Email:
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input
+          type="email"
+          value={email}
+          disabled={disabled}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </label>
+
       <label>
         Password:
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input
+          type="password"
+          value={password}
+          disabled={disabled}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </label>
+
       <label>
         Confirm Password:
-        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        <input
+          type="password"
+          value={confirmPassword}
+          disabled={disabled}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
       </label>
-      <button type="submit">Register</button>
+
+      <div>
+        <button type="submit" disabled={disabled}>Register</button>
+        {onCancel && <button type="button" onClick={onCancel}>Cancel</button>}
+      </div>
     </form>
   );
-};
-
+}

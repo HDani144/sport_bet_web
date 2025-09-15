@@ -6,8 +6,8 @@ import "./main.css";
 import Layout from "./Pages/Layout";
 import MainPage from "./Pages/MainPage";
 import ErrorPage from "./Pages/ErrorPage";
-import RegisterForm from "./Forms/RegisterForm";
 import LoginForm from "./Forms/LoginForm";
+import UserRegister from "./Pages/UserRegister";
 
 
 
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/registration",
-        element: <RegisterForm />,
+        element: <UserRegister></UserRegister>,
       },
       {
         path: "/login",
