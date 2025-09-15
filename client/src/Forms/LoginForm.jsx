@@ -1,23 +1,17 @@
 import { useState } from "react";
 
-export default function RegisterForm() {
-  const [name, setName] = useState("");
+
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("Password and Confirm Password do not match");
-      return;
-    }
-
-    const user = { name, email, password };
+    const user = { email, password };
 
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
@@ -26,22 +20,18 @@ export default function RegisterForm() {
       const data = await res.json();
 
       if (data.success) {
-        alert("Registration successful");
+        alert("Login successful");
       } else {
         alert(data.message);
       }
     } catch (err) {
-      console.error("Registration error:", err);
+      console.error("Login error:", err);
       alert("Something went wrong. Please try again.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <label>
-        Name:
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-      </label>
       <label>
         Email:
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -50,12 +40,7 @@ export default function RegisterForm() {
         Password:
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
-      <label>
-        Confirm Password:
-        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-      </label>
-      <button type="submit">Register</button>
+      <button type="submit">Login</button>
     </form>
   );
-};
-
+}

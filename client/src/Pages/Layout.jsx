@@ -28,7 +28,7 @@ const Layout = () => {
             </button>
           </li>
           <li>
-            <button onClick={() => navigate("/register")}>
+            <button onClick={() => navigate("/registration")}>
                 Regisztráció
             </button>
           </li>
