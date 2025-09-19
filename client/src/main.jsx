@@ -6,8 +6,12 @@ import "./main.css";
 import Layout from "./Pages/Layout";
 import MainPage from "./Pages/MainPage";
 import ErrorPage from "./Pages/ErrorPage";
-import LoginForm from "./Forms/LoginForm";
 import UserRegister from "./Pages/UserRegister";
+import Subscription from "./Pages/Subscription";
+import UserLogin from "./Pages/UserLogin";
+import Dashboard from "./Pages/Dashboard";
+import Tip from "./Pages/Tip";
+import SuccessPage from "./Pages/SuccessPage";
 
 
 
@@ -27,9 +31,24 @@ const router = createBrowserRouter([
       },
       {
         path: "/login",
-        element: <LoginForm />,
+        element: <UserLogin></UserLogin>,
       },
-    
+      {
+        path: "/subscription",
+        element: <Subscription />,
+      },
+      {
+        path: "/dashboard",
+        element: <Dashboard></Dashboard>,
+      },
+      {
+        path: "/tips",
+        element: <Tip></Tip>,
+      },
+      {
+        path: "/success",
+        element: <SuccessPage></SuccessPage>,
+      },
     ],
   },
 ]);
