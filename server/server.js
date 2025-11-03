@@ -1,3 +1,4 @@
+// server.js
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
@@ -9,22 +10,34 @@ import authMiddleware from "./middleware/auth.js";
 import Stripe from "stripe";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import cron from "node-cron";
 
 dotenv.config();
 
-const { MONGO_URL, PORT = 8080 } = process.env;
+const {
+  MONGO_URL,
+  PORT = 8080,
+  STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET,
+  FRONTEND_URL = "http://localhost:5173"
+} = process.env;
 
 if (!MONGO_URL) {
   console.error("Missing MONGO_URL environment variable");
   process.exit(1);
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+if (!STRIPE_SECRET_KEY) {
+  console.error("Missing STRIPE_SECRET_KEY environment variable");
+  process.exit(1);
+}
+
+const stripe = new Stripe(STRIPE_SECRET_KEY);
 const app = express();
 
 // CORS a frontendhez
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: FRONTEND_URL,
   credentials: true,
 }));
 
@@ -32,17 +45,26 @@ app.use(cors({
 app.use(cookieParser());
 
 // ------------------- Stripe Webhook -------------------
-// ⚠️ webhook előtt **NE** legyen express.json() a raw body miatt
+// IMPORTANT: webhook endpoint must receive raw body -> bodyParser.raw BEFORE express.json()
 app.post("/api/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
+  if (!STRIPE_WEBHOOK_SECRET) {
+    console.warn("Stripe webhook secret not set; skipping verification.");
+  }
+
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    if (STRIPE_WEBHOOK_SECRET) {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        STRIPE_WEBHOOK_SECRET
+      );
+    } else {
+      // If no webhook secret (only for local dev), try parsing the JSON (best-effort)
+      event = JSON.parse(req.body.toString());
+    }
   } catch (err) {
     console.error("Webhook error:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -113,19 +135,29 @@ app.post("/api/create-checkout-session", authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: "Érvénytelen csomag" });
     }
 
+    // A success/cancel URL most a FRONTEND_URL környezeti változóból jön
+    const successUrl = `${FRONTEND_URL.replace(/\/$/, "")}/success`;
+    const cancelUrl = `${FRONTEND_URL.replace(/\/$/, "")}/cancel`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
+      // Kiegészítés: ha szeretnéd, hogy 3DS automatikusan kezelve legyen
+      payment_method_options: {
+        card: {
+          request_three_d_secure: "automatic",
+        },
+      },
       line_items: [{
         price_data: {
           currency: "huf",
           product_data: { name: `${packageName} - 30 nap` },
-          unit_amount: packagePrices[packageName] * 100,
+          unit_amount: packagePrices[packageName] * 100, // forint -> minor currency units
         },
         quantity: 1,
       }],
       mode: "payment",
-      success_url: "http://localhost:5173/success",
-      cancel_url: "http://localhost:5173/cancel",
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       customer_email: req.user.email,
     });
 
@@ -163,7 +195,7 @@ app.post("/api/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(400).json({ success: false, message: "Invalid email or password" });
+      return res.status(400).json({ success: false, message: "Hibás bejelentkezési adatok" });
     }
 
     const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1h" });
@@ -187,6 +219,24 @@ const startServer = async () => {
     console.log("Connected to MongoDB");
 
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+    // ------------------- CRON JOB: előfizetés ellenőrzés -------------------
+    // Fut minden órában (0. perc)
+    cron.schedule("0 * * * *", async () => {
+      console.log("CRON: Előfizetések ellenőrzése indul...");
+      try {
+        const now = new Date();
+        const result = await User.updateMany(
+          { subscriber: true, subscriptionExpires: { $lt: now } },
+          { $set: { subscriber: false } }
+        );
+        if (result.modifiedCount > 0) {
+          console.log(`CRON: ${result.modifiedCount} előfizetés lejárt és inaktiválva lett.`);
+        }
+      } catch (err) {
+        console.error("CRON hiba:", err);
+      }
+    });
   } catch (err) {
     console.error("Failed to connect to MongoDB", err);
     process.exit(1);

@@ -1,59 +1,283 @@
 /* ------------------- Alapok ------------------- */
+:root {
+  --navbar-height: 70px;
+  --navbar-bg: transparent; /* teljesen átlátszó navbar */
+  --accent-light: #2ea44f;
+  --accent-dark: #1d6f2d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: var(--navbar-height);
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, #e6f2e6 0%, #d0ebd0 100%);
   color: #1a1a1a;
+  padding-top: var(--navbar-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a, button {
+a,
+button {
   text-decoration: none;
   font-family: inherit;
   outline: none;
 }
 
 /* ------------------- Layout / Navbar ------------------- */
-.Layout nav {
-  background-color: #064d26; /* sötét zöld */
-  padding: 12px 24px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* A navbar átlátszó és középre igazított, a gombok (linkek) pillként jelennek meg */
+
+
+body.has-hero {
+  padding-top: 0; /* a videó a teljes tetejét lefedi */
 }
 
-.Layout nav ul {
-  list-style: none; /* eltünteti a kis pontokat */
+body.has-hero .Layout nav {
+  position: absolute; /* lebeg a videó felett */
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  z-index: 999;
+}
+
+
+.Layout nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--navbar-height);
+  display: flex;
+  justify-content: center; /* középre igazítjuk a menüt */
+  align-items: center;
+  padding: 0 40px;
+  background: var(--navbar-bg); /* transparent */
+  backdrop-filter: none; /* eltávolítjuk a blur-t, hogy teljesen átlátszó legyen */
+  box-shadow: none; /* nincs árnyék */
+  z-index: 999;
+  transition: all 0.4s ease;
+}
+
+/* --- Bal oldal --- */
+.Layout nav .nav-left {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
+  gap: 40px;
+  /* ha nagyon ragaszkodsz a center-hez: a logo-t eltüntetjük, hogy csak a gombok látszódjanak */
+}
+
+/* Ha nem akarod látni a logót, kikapcsolhatod (ezt kérted: "csak a buttonok látszódjanak") */
+.Layout nav .logo {
+  display: none; /* elrejtjük a logót, ha szeretnéd, állítsd vissza */
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  transition: transform 0.3s ease;
+}
+
+.Layout nav .logo:hover {
+  transform: scale(1.05);
+}
+
+/* A menü lista középre kerül */
+.Layout nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 20px; /* kisebb gap, hogy szépen összeessenek a pillák */
   margin: 0;
   padding: 0;
 }
 
-.Layout nav button {
+/* Menüelemek — átformázva "pilla" gombokká, jól látszódnak az átlátszó navbaron */
+.Layout nav ul li a {
+  display: inline-block;
   padding: 10px 18px;
-  background-color: #2ea44f;
+  border-radius: 28px;
+  background: linear-gradient(135deg, var(--accent-light), #24913f);
   color: #fff;
   font-weight: 600;
-  border-radius: 8px;
-  transition: 0.3s;
+  font-size: 0.95rem;
+  position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+/* Aktív / kiválasztott menü: fehér háttér, sötét zöld szöveg */
+.Layout nav ul li a.active,
+.Layout nav ul li a[aria-current="page"] {
+  background: #ffffff;
+  color: var(--accent-dark);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* Hover effekt */
+.Layout nav ul li a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+}
+
+/* --- Aláhúzás animáció (ha marad) --- */
+.Layout nav ul li a::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-light), var(--accent-dark));
+  border-radius: 2px;
+  transition: all 0.25s ease;
+  transform: translateX(-50%);
+}
+
+.Layout nav ul li a:hover::after {
+  width: 60%;
+}
+
+/* --- Jobb oldal --- */
+.Layout nav .nav-right {
+  display: none; /* elrejtjük a jobb oldali elemeket, hogy csak a középső gombok látszódjanak */
+  align-items: center;
+  gap: 20px;
+}
+
+.Layout nav .username {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  animation: fadeIn 0.5s ease;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+/* --- Logout gomb --- */
+.Layout nav button {
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
   border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.Layout nav button:hover:not(:disabled) {
-  background-color: #1d6f2d;
-  transform: translateY(-2px);
+/* ✅ Engedélyezett állapot */
+.Layout nav button:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent-light), #24913f);
+  color: #fff;
 }
 
+.Layout nav button:not(:disabled):hover {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-light));
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* ⛔ Letiltott állapot */
 .Layout nav button:disabled {
-  background-color: #a0a0a0;
+  background: #ffffff;
+  color: #999;
   cursor: not-allowed;
+  box-shadow: none;
+  border: 1px solid #e0e0e0;
+}
+
+/* --- Animáció --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------- Videó Hero (külön css-ben lehet) ------------------- */
+/* A videó most pontosan a lap tetején indul: 100vh, nincs margin-top */
+.video-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* teljes képernyő */
+  overflow: hidden;
+  margin: 0; /* eltávolítjuk minden margót */
+  padding: 0;
+}
+
+.video-hero video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ------------------- Reszponzív Navbar ------------------- */
+@media (max-width: 900px) {
+  :root {
+    --navbar-height: 140px;
+  }
+
+  .Layout nav {
+    height: auto;
+    padding: 12px 20px;
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(0, 0, 0, 0.25); /* mobilon kis áttetsző háttér, hogy olvashatóbb legyen */
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .Layout nav .nav-left {
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .Layout nav ul {
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .Layout nav .nav-right {
+    display: flex; /* mobilon visszakapjuk a jobb oldalt, ha szükséges */
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .Layout nav .logo {
+    display: none;
+  }
 }
 
 /* ------------------- Main Page ------------------- */
 .MainPage {
   max-width: 1000px;
-  margin: 40px auto;
+  margin: 40px auto 40px;
   padding: 0 20px;
+  z-index: 10;
+  position: relative;
 }
 
 .MainPage h1 {
@@ -63,18 +287,19 @@ a, button {
   margin-bottom: 20px;
 }
 
-.MainPage .about_us, .MainPage .attention {
+.MainPage .about_us,
+.MainPage .attention {
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 15px;
   padding: 25px;
   margin-bottom: 25px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .MainPage .register_now {
   display: inline-block;
   margin-top: 15px;
-  background-color: #2ea44f;
+  background-color: var(--accent-light);
   color: white;
   font-weight: bold;
   padding: 12px 22px;
@@ -83,86 +308,267 @@ a, button {
 }
 
 .MainPage .register_now:hover {
-  background-color: #1d6f2d;
+  background-color: var(--accent-dark);
   transform: translateY(-2px);
 }
 
 /* ------------------- Subscription Page ------------------- */
 .SubscriptionPage {
-  max-width: 1200px;
-  margin: 40px auto;
+  max-width: 1300px;
+  margin: 60px auto;
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.8s ease;
 }
 
 .SubscriptionHeader h1 {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   color: #064d26;
-  margin-bottom: 5px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
 }
 
 .SubscriptionHeader em {
   display: block;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #3b7a57;
+  font-style: normal;
+  opacity: 0.9;
 }
 
+/* --- Kártyák tartó --- */
 .SubscriptionPackages {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-  justify-content: center;
-  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 35px;
+  margin-top: 50px;
+  width: 100%;
+  padding: 10px;
 }
 
+/* --- Egy kártya --- */
 .SubscriptionCard {
-  background-color: rgba(255,255,255,0.95);
+  position: relative;
+  background: linear-gradient(145deg, #ffffff, #f1fff1);
   border-radius: 20px;
-  padding: 25px;
-  width: 280px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
+  padding: 35px 25px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
+}
+
+/* --- Hover overlay (felülről lefelé) --- */
+/* Ez az overlay adja a zöldes áttűnést hoverkor, de pointer-events: none biztosítja, hogy a gomb kattintható marad */
+.SubscriptionCard::before {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0, 70, 22, 0.3), rgba(0, 154, 41, 0.15));
+  transition: top 0.7s ease;
+  pointer-events: none; /* FONTOS: így a gomb marad kattintható */
+}
+
+.SubscriptionCard:hover::before {
+  top: 0;
 }
 
 .SubscriptionCard:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
 }
 
+.SubscriptionCard:hover::before {
+  opacity: 0.9;
+}
+
+/* ------------------- Tooltip disabled navbar button ------------------- */
+.Layout nav ul li button.disabled,
+.Layout nav ul li button:disabled {
+  position: relative;
+  cursor: not-allowed;
+  color: #999;
+}
+
+/* Tooltip létrehozása */
+.Layout nav ul li button.disabled::after,
+.Layout nav ul li button:disabled::after {
+  content: "Iratkozz fel, hogy feloldja ezt a menüpontot";
+  position: absolute;
+  bottom: -35px; /* Tooltip alul jelenik meg */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #064d26;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, bottom 0.3s ease;
+  z-index: 100;
+}
+
+/* Hover-re jelenjen meg */
+.Layout nav ul li button.disabled:hover::after,
+.Layout nav ul li button:disabled:hover::after {
+  opacity: 1;
+  bottom: -45px;
+}
+
+/* --- Cím --- */
 .PackageTitle {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #064d26;
   margin-bottom: 12px;
+  text-align: center;
+}
+
+/* --- Ár szekció --- */
+.PackagePrice {
+  text-align: center;
+  margin: 20px 0;
 }
 
 .PackagePrice .CurrentPrice {
-  color: #2ea44f;
-  font-size: 1.6rem;
-  font-weight: bold;
+  color: var(--accent-light);
+  font-size: 2rem;
+  font-weight: 800;
+  text-shadow: 0 1px 4px rgba(46, 164, 79, 0.3);
 }
 
 .PackagePrice .OldPrice {
-  color: #888;
-  margin-left: 8px;
+  color: #999;
+  text-decoration: line-through;
+  font-size: 1rem;
+  margin-left: 10px;
 }
 
+/* --- Funkció lista --- */
+.PackageFeatures {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.PackageFeatures li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+.PackageFeatures li::before {
+  content: "✔";
+  color: var(--accent-light);
+  font-weight: 800;
+}
+
+/* --- Gomb --- */
 .PackageButton {
-  background-color: #2ea44f;
+  background: linear-gradient(135deg, var(--accent-light), #1f7c37);
   color: #fff;
   font-weight: bold;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 15px;
-  transition: 0.3s;
+  font-size: 1rem;
+  padding: 12px 0;
+  border-radius: 12px;
+  border: none;
+  margin-top: 25px;
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(46, 164, 79, 0.4);
+  transition: all 0.3s ease;
 }
 
 .PackageButton:hover {
-  background-color: #1d6f2d;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-light));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(46, 164, 79, 0.6);
+}
+
+.PackageButton:active {
+  transform: scale(0.98);
+}
+
+/* --- Prémium csomag kiemelése --- */
+.SubscriptionCard.premium {
+  border: 2px solid var(--accent-light);
+  background: linear-gradient(135deg, #eaffea, #ffffff);
+  box-shadow: 0 16px 40px rgba(46, 164, 79, 0.25);
+}
+
+.SubscriptionCard.premium::before {
+  background: radial-gradient(circle at top left, rgba(46, 164, 79, 0.25), transparent 70%);
+}
+
+/* --- Animáció beúszásra --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------- Reszponzivitás ------------------- */
+@media (max-width: 768px) {
+  .SubscriptionHeader h1 {
+    font-size: 2.2rem;
+  }
+
+  .SubscriptionCard {
+    padding: 25px 20px;
+  }
+
+  .PackagePrice .CurrentPrice {
+    font-size: 1.7rem;
+  }
+
+  .PackageButton {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  /* ha korábban volt: .video-hero { height: calc(100vh - var(--navbar-height)); } */
+  /* most a mobilnál is 100vh a videó, de nálad szükség lehet finomításra */
+  .video-hero {
+    height: 100vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .SubscriptionPage {
+    margin: 30px auto;
+  }
+
+  .SubscriptionHeader em {
+    font-size: 1rem;
+  }
+
+  .SubscriptionPackages {
+    gap: 20px;
+  }
+
+  .SubscriptionCard {
+    width: 100%;
+  }
 }
 
 /* ------------------- Modal ------------------- */
@@ -172,7 +578,7 @@ a, button {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -185,19 +591,19 @@ a, button {
   padding: 25px 35px;
   max-width: 400px;
   text-align: center;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
 }
 
 .modal button {
   margin-top: 20px;
-  background-color: #2ea44f;
+  background-color: var(--accent-light);
   color: #fff;
   padding: 10px 20px;
   border-radius: 10px;
 }
 
 .modal button:hover {
-  background-color: #1d6f2d;
+  background-color: var(--accent-dark);
   transform: translateY(-2px);
 }
 
@@ -206,12 +612,12 @@ form {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: rgba(255,255,255,0.95);
+  background-color: rgba(255, 255, 255, 0.95);
   padding: 25px;
   border-radius: 15px;
   max-width: 420px;
   margin: 30px auto;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 form label {
@@ -225,7 +631,7 @@ form input {
 }
 
 form button {
-  background-color: #2ea44f;
+  background-color: var(--accent-light);
   color: white;
   font-weight: bold;
   padding: 12px;
@@ -234,7 +640,7 @@ form button {
 }
 
 form button:hover {
-  background-color: #1d6f2d;
+  background-color: var(--accent-dark);
   transform: translateY(-2px);
 }
 
@@ -243,15 +649,19 @@ form button:hover {
   width: 60px;
   height: 60px;
   border: 7px solid #f3f3f3;
-  border-top: 7px solid #2ea44f;
+  border-top: 7px solid var(--accent-light);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 60px auto;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ------------------- Error Page ------------------- */

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../Components/Modal";
+import Loading from "../Loading/Loading";
 
 export default function Subscription() {
   const [user, setUser] = useState(null);
@@ -39,7 +40,7 @@ export default function Subscription() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ packageName }), // elküldjük a csomag nevét
+        body: JSON.stringify({ packageName }),
       });
 
       const data = await res.json();
@@ -81,7 +82,7 @@ export default function Subscription() {
     },
   ];
 
-  if (loading) return <p>Betöltés...</p>;
+  if (loading) return <Loading />;
 
   return (
     <div className="SubscriptionPage">
@@ -123,7 +124,7 @@ export default function Subscription() {
                 if (!user) {
                   setModalMessage("Kérlek jelentkezz be a fizetéshez!");
                 } else {
-                  handlePayment(pkg.title); // átadjuk a csomag nevét
+                  handlePayment(pkg.title);
                 }
               }}
             >
@@ -133,7 +134,6 @@ export default function Subscription() {
         ))}
       </div>
 
-      {/* Modal */}
       <Modal
         message={modalMessage}
         onClose={() => {

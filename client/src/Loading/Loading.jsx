@@ -1,5 +1,9 @@
 import "./Loading.css";
 
-const Loading = () => <div className="Loading" />;
-
-export default Loading;
+export default function Loading() {
+  return (
+    <div className="LoadingBackdrop">
+      <div className="Spinner"></div>
+    </div>
+  );
+}
